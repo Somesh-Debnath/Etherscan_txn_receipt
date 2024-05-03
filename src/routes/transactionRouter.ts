@@ -27,7 +27,10 @@ router.get('/:txHash', async (req: { params: { txHash: any; }; }, res: any) => {
 router.post('/:txhash', async (req: { params: { txhash: any; }; }, res: any) => {
     const txHash = req.params.txhash;
     try {
-        const receipt = await web3.eth.getTransactionReceipt(txHash);
+        let receipt = await web3.eth.getTransactionReceipt(txHash);
+        // Convert BigInt values to strings
+        receipt = JSON.parse(JSON.stringify(receipt, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+        receipt.logs = receipt.logs.map(log => web3.utils.hexToUtf8(log.data));
         const savedReceipt = await TransactionReceipt.create({ txHash, receipt });
         res.status(201).json(savedReceipt);
     } catch (error) {
@@ -37,3 +40,4 @@ router.post('/:txhash', async (req: { params: { txhash: any; }; }, res: any) => 
 });
 
 export default router;
+

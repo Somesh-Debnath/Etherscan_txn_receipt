@@ -84,7 +84,9 @@ router.post('/:txhash', function (req, res) { return __awaiter(void 0, void 0, v
                 return [4 /*yield*/, web3.eth.getTransactionReceipt(txHash)];
             case 2:
                 receipt = _a.sent();
-                console.log('Transaction receipt:', receipt.logs);
+                // Convert BigInt values to strings
+                receipt = JSON.parse(JSON.stringify(receipt, function (_, v) { return typeof v === 'bigint' ? v.toString() : v; }));
+                receipt.logs = receipt.logs.map(function (log) { return web3.utils.hexToUtf8(log.data); });
                 return [4 /*yield*/, TransactionReceipt_1.default.create({ txHash: txHash, receipt: receipt })];
             case 3:
                 savedReceipt = _a.sent();
